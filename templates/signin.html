@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+<head><title>Вход</title></head>
+<body>
+<h1>Вход</h1>
+<form method="POST">
+  Логин: <input name="username" required><br>
+  Пароль: <input name="password" type="password" required><br>
+  <button type="submit">Войти</button>
+</form>
+<a href="{{ url_for('signup') }}">Регистрация</a>
+</body>
+</html>
