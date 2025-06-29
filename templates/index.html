@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <title>Главная</title>
+  <style>
+    button#tap-btn {
+      width: 200px;
+      height: 200px;
+      background-color: red;
+      color: white;
+      font-size: 24px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<h1>Привет, {{ user.username }}!</h1>
+
+<button id="tap-btn">Нажми меня</button>
+<p>Клики: <span id="clicks">{{ user.clicks }}</span></p>
+
+{% if user.username == 'Enot' %}
+  <a href="{{ url_for('locations') }}">🗺 Карта</a>
+{% endif %}
+
+<a href="{{ url_for('signout') }}">Выйти</a>
+
+<script>
+document.getElementById('tap-btn').onclick = async () => {
+  const resp = await fetch('/tap', { method: 'POST' });
+  const data = await resp.json();
+  document.getElementById('clicks').textContent = data.clicks;
+  if(data.win) {
+    alert('Поздравляем! Вы выиграли 1 рубль!');
+  }
+};
+</script>
+</body>
+</html>
