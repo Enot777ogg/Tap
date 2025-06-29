@@ -1,17 +1,21 @@
  {% extends 'base.html' %}
-{% block title %}Вход{% endblock %}
+{% block title %}Вход — Tap Game{% endblock %}
+
 {% block content %}
 <h2>Вход</h2>
-<form method="POST">
-    <div class="mb-3">
-        <label>Имя</label>
-        <input name="username" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label>Пароль</label>
-        <input type="password" name="password" class="form-control" required>
-    </div>
-    <button class="btn btn-primary">Войти</button>
-    <a href="{{ url_for('signup') }}" class="btn btn-link">Регистрация</a>
+<form method="POST" action="{{ url_for('signin') }}">
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Имя пользователя</label>
+    <input type="text" class="form-control" id="username" name="username" required />
+  </div>
+  <div class="mb-3">
+    <label for="password" class="form-label">Пароль</label>
+    <input type="password" class="form-control" id="password" name="password" required />
+  </div>
+  <button type="submit" class="btn btn-danger">Войти</button>
 </form>
+<p class="mt-3">Нет аккаунта? <a href="{{ url_for('signup') }}">Зарегистрируйтесь</a></p>
 {% endblock %}
