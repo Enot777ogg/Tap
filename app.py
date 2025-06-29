@@ -16,9 +16,9 @@ class User(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
-@app.before_first_request
-def create_tables():
+with app.app_context():
     db.create_all()
+
     # Создаем Enot, если нет
     if not User.query.filter_by(username='Enot').first():
         admin = User(username='Enot', password='admin123', clicks=0)
