@@ -1,13 +1,17 @@
-<!doctype html>
-<html>
-<head><title>Вход</title></head>
-<body>
-<h1>Вход</h1>
+ {% extends 'base.html' %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<h2>Вход</h2>
 <form method="POST">
-  Логин: <input name="username" required><br>
-  Пароль: <input name="password" type="password" required><br>
-  <button type="submit">Войти</button>
+    <div class="mb-3">
+        <label>Имя</label>
+        <input name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label>Пароль</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+    <button class="btn btn-primary">Войти</button>
+    <a href="{{ url_for('signup') }}" class="btn btn-link">Регистрация</a>
 </form>
-<a href="{{ url_for('signup') }}">Регистрация</a>
-</body>
-</html>
+{% endblock %}
