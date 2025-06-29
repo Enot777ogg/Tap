@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Карта нажатий</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>#map { height: 80vh; }</style>
+</head>
+<body>
+<h1>Карта нажатий (доступна только Enot)</h1>
+<div id="map"></div>
+<a href="{{ url_for('index') }}">⬅ Назад</a>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([55.751244, 37.618423], 5);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var users = {{ users|tojson }};
+  users.forEach(u => {
+    if(u.latitude && u.longitude){
+      L.marker([u.latitude, u.longitude])
+        .addTo(map)
+        .bindPopup(u.username + '<br>Клики: ' + u.clicks);
+    }
+  });
+</script>
+</body>
+</html>
