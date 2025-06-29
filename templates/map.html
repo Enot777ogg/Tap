@@ -1,18 +1,33 @@
- {% extends 'base.html' %}
-{% block title %}Карта{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Карта нажатий — Tap Game{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<style>
+  #map { height: 500px; }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Карта пользователей</h2>
-<div id="map" style="height: 500px;"></div>
+<h2>Карта нажатий (только для администратора)</h2>
+<div id="map"></div>
+{% endblock %}
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script>
-var map = L.map('map').setView([55, 37], 3);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  const map = L.map('map').setView([55.751244, 37.618423], 5); // Центр на Москву
 
-{% for u in users %}
-L.marker([{{ u.latitude }}, {{ u.longitude }}]).addTo(map)
-    .bindPopup("{{ u.username }}: {{ u.clicks }} нажатий");
-{% endfor %}
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+  }).addTo(map);
+
+  const users = {{ users | tojson }};
+  users.forEach(user => {
+    if (user.latitude && user.longitude) {
+      L.marker([user.latitude, user.longitude])
+        .addTo(map)
+        .bindPopup(`${user.username}: ${user.clicks} нажатий`);
+    }
+  });
 </script>
 {% endblock %}
