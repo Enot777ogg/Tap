@@ -1,43 +1,61 @@
- {% extends 'base.html' %}
-{% block title %}Главная{% endblock %}
-{% block content %}
-<h2 class="text-center">Привет, {{ user.username }}!</h2>
-<p class="text-center">Ваше место в рейтинге: <strong>#{{ place }}</strong></p>
+{% extends 'base.html' %}
+{% block title %}Главная — Tap Game{% endblock %}
 
-<div class="d-grid gap-2 col-6 mx-auto my-4">
-    <button id="tapBtn" class="btn btn-lg btn-danger py-3">НАЖМИ!</button>
-    <div id="countDisplay" class="text-center fs-4">Нажатий: {{ user.clicks }}</div>
+{% block content %}
+<h1>Привет, {{ user.username }}!</h1>
+
+<div class="text-center my-4">
+  <button id="tap-btn" class="btn btn-danger btn-lg px-5 py-3">Красная кнопка</button>
+  <p class="mt-3">Нажато: <span id="click-count">{{ user.clicks }}</span></p>
 </div>
 
-<h4 class="mt-5 text-center">🏆 Топ-10 игроков</h4>
-<ul class="list-group">
-    {% for u in users %}
-    <li class="list-group-item d-flex justify-content-between">
-        <span>{{ loop.index }}. {{ u.username }}</span>
-        <span>{{ u.clicks }} 👆</span>
-    </li>
-    {% endfor %}
-</ul>
+<div id="win-alert" class="alert alert-success d-none" role="alert">
+  Поздравляем! Ты выиграл 1₽ за 10000 нажатий!
+</div>
 
+<h3>Топ 10 игроков</h3>
+<ol>
+  {% for u in users %}
+  <li {% if u.id == user.id %}class="fw-bold"{% endif %}>
+    {{ u.username }} — {{ u.clicks }} нажатий
+  </li>
+  {% endfor %}
+</ol>
+
+<p>Твое место в рейтинге: <strong>{{ place }}</strong></p>
+
+{% if user.is_admin %}
+  <a href="{{ url_for('locations') }}" class="btn btn-primary">Посмотреть карту нажатий</a>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
 <script>
-document.getElementById("tapBtn").onclick = async () => {
-    const res = await fetch("/tap", { method: "POST" });
-    const data = await res.json();
-    document.getElementById("countDisplay").innerText = `Нажатий: ${data.clicks}`;
-    if (data.win) {
-        alert("🎉 Поздравляем! Вы выиграли 1 рубль!");
-    }
-};
+  const btn = document.getElementById('tap-btn');
+  const clickCount = document.getElementById('click-count');
+  const winAlert = document.getElementById('win-alert');
 
-navigator.geolocation?.getCurrentPosition(pos => {
-    fetch("/location", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude
-        })
+  btn.addEventListener('click', () => {
+    fetch('/tap', {method: 'POST'})
+      .then(res => res.json())
+      .then(data => {
+        clickCount.textContent = data.clicks;
+        if (data.win) {
+          winAlert.classList.remove('d-none');
+          setTimeout(() => winAlert.classList.add('d-none'), 5000);
+        }
+      });
+  });
+
+  // Отправляем геолокацию
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      fetch('/location', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({lat: pos.coords.latitude, lon: pos.coords.longitude})
+      });
     });
-});
+  }
 </script>
 {% endblock %}
