@@ -120,4 +120,38 @@ def upload_avatar():
         return "Level too low", 403
     file = request.files['avatar']
     if file:
-        filename = secure_filename(str(uuid.uuid4()) + "_" + fi
+        filename = secure_filename(str(uuid.uuid4()) + "_" + file.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        user.avatar = filename
+        db.session.commit()
+    return redirect('/')
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/chat')
+def chat():
+    if 'user_id' not in session:
+        return redirect('/login')
+    user = User.query.get(session['user_id'])
+    rank = get_user_rank(user.id)
+    return render_template('chat.html', username=user.username, avatar=user.avatar, rank=rank)
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    username = data['username']
+    avatar = data['avatar']
+    text = data['text']
+    emit('receive_message', {
+        'username': username,
+        'avatar': avatar,
+        'text': text
+    }, broadcast=True)
+
+# Main
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    socketio.run(app, host='0.0.0.0', port=5000)
