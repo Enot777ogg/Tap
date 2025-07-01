@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Чат</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Чат игроков</h1>
+  <div id="messages" style="max-height: 300px; overflow-y: auto;"></div>
+  <form id="chat-form">
+    <input type="text" id="msg" required>
+    <button>Отправить</button>
+  </form>
+  <a href="/">Назад</a>
+
+  <script>
+    const socket = io();
+    const username = "{{ username }}";
+    const avatar = "{{ avatar }}";
+
+    document.getElementById('chat-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const text = document.getElementById('msg').value;
+      socket.emit('send_message', { username, avatar, text });
+      document.getElementById('msg').value = '';
+    });
+
+    socket.on('receive_message', data => {
+      const msgDiv = document.createElement('div');
+      msgDiv.innerHTML = `<img src="/uploads/${data.avatar}" width="40"> <strong>${data.username}:</strong> ${data.text}`;
+      document.getElementById('messages').appendChild(msgDiv);
+    });
+  </script>
+</body>
+</html>
